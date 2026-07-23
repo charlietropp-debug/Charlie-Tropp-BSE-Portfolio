@@ -9,7 +9,7 @@ You should comment out all portions of your portfolio that you have not complete
 
 | Engineer|School Name| Interests | Grade|
 |:--:|:--:|:--:|:--:|
-| Charlie T| Paul D. Schreiber High School |AI and Software Engineering| Incoming Juior
+| Charles T| Paul D. Schreiber High School |AI and Software Engineering| Incoming Juior
 
 **Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
 
@@ -45,7 +45,7 @@ For your second milestone, explain what you've worked on since your previous mil
 
 **Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/CaCazFBhYKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=zcms080g7NM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 * **Project Overview:** I am building an Arduino-powered self-drivingcar that can detect obstacles, navigate around them, and switch between autonomous and remote-controlled driving modes.
 
