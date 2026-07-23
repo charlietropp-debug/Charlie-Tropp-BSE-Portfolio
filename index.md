@@ -47,11 +47,15 @@ For your second milestone, explain what you've worked on since your previous mil
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/CaCazFBhYKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-For your first milestone, describe what your project is and how you plan to build it. You can include:
-- An explanation about the different components of your project and how they will all integrate together
-- Technical progress you've made so far
-- Challenges you're facing and solving in your future milestones
-- What your plan is to complete your project
+* **Project Overview:** I am building an Arduino-powered self-drivingcar that can detect obstacles, navigate around them, and switch between autonomous and remote-controlled driving modes.
+
+* **Components & Integration:** The project uses an Arduino R3, ultrasonic sensor, infrared obstacle sensors, L9110 motor driver, TT motors, IR Transmitter, and a rechargeable battery. The Arduino processes sensor data and controls the motors to safely navigate the environment.
+
+* **Progress So Far:** I have assembled the car, connected the motors and sensors, tested the hardware, and begun programming the obstacle detection and motor control systems as well as the manual mode.
+
+* **Challenges:** My biggest challenge is creating smoother and smarter navigation instead of simply backing up and turning.
+
+* **Next Steps:** I will improve the obstacle avoidance algorithm,test the car in different obstacle courses, and refine the software until it can reliably drive both autonomously and under manual control.
 
 # Schematics 
 Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resoruces to create professional schematic diagrams, though BSE recommends Tinkercad becuase it can be done easily and for free in the browser. 
