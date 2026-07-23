@@ -1,5 +1,5 @@
-# Project Name Here
-Replace this text with a brief description (2-3 sentences) of your project. This description should draw the reader in and make them interested in what you've built. You can include what the biggest challenges, takeaways, and triumphs from completing the project were. As you complete your portfolio, remember your audience is less familiar than you are with all that your project entails!
+Self Driving Car
+My project is an Arduino-based self-driving car that uses ultrasonic and infrared sensors to detect obstacles and navigate autonomously. In addition to self-driving capabilities, the car will include a remote-control mode, allowing it to switch between manual and autonomous operation. This project combines programming, electronics, and robotics to demonstrate the fundamentals of autonomous vehicle technology.
 
 You should comment out all portions of your portfolio that you have not completed yet, as well as any instructions:
 ```HTML 
@@ -7,7 +7,7 @@ You should comment out all portions of your portfolio that you have not complete
 <!--- Anything between these symbols will not render on the published site -->
 ```
 
-| **Engineer** | **School** | **Area of Interest** | **Grade** |
+| Charlie T| Paul D. Schreiber High School| AI and Software Engineering  | Incoming Junior|
 |:--:|:--:|:--:|:--:|
 | FirstName LastInitialOnly | School Name | Electrical Engineering | Incoming Senior
 
