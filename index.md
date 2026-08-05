@@ -48,7 +48,25 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 
 # Code
 
-```cpp
+<div style="
+    height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #1e1e1e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+">
+<pre style="
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+"><code class="language-cpp">
+
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -829,7 +847,9 @@ void printKeyName(RemoteKey k) {
     default: Serial.print(F("ERROR")); break;
   }
 }
-```
+</div>
+
+
 ## Bill of Materials
 
 | Part | Note | Price | Link |
