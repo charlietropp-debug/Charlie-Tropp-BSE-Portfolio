@@ -60,6 +60,28 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
 
 ```c++
+<div style="
+  height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #1e1e1e;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+">
+  <pre style="
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  "><code>
+
+
+
+
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -840,6 +862,9 @@ void printKeyName(RemoteKey k) {
     default: Serial.print(F("ERROR")); break;
   }
 }
+
+ </code></pre>
+</div>
 
 # Bill of Materials
 | **Part** | **Note** | **Price** | **Link** |
