@@ -19,7 +19,15 @@ You should comment out all portions of your portfolio that you have not complete
 
 **Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
 
-<iframe width="560" height="315" src="https://www.youtube.com/shorts/imD-li7K2ZM" title="Charles T Milestone 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+    <iframe
+        src="https://www.youtube.com/embed/imD-li7K2ZM"
+        title="Charles T Milestone 3"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+    </iframe>
+</div>
 
 For your final milestone, explain the outcome of your project. Key details to include are:
 - What you've accomplished since your previous milestone
@@ -32,7 +40,15 @@ For your final milestone, explain the outcome of your project. Key details to in
 # Second Milestone
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/shorts/LZQw0s5oOHk" title="Charles T Milestone 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<div style="position: relative; width: 100%; padding-bottom: 56.25%;">
+    <iframe
+        src="https://www.youtube.com/embed/LZQw0s5oOHk"
+        title="Charles T Milestone 2"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+    </iframe>
+</div>
 
 
 For My second Milestone I have upgraded the Line Following mode from my first milestone by adding a second line following module. I also added an I2C lCD screen to show what mode the car is in ex Manual/Self-Driving. Finally I improved Remote Control mode by increases reach of the remote. Some previous challanges that I over cam were issues with the line-following mode and manual mode which I fixed with better code and more attention to the coding. For my third milestone I will Improve the Self-Driving Mode and add a bluetooth module so I can controll the Robot from my phone.
@@ -40,7 +56,15 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 # First Milestone
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/watch?v=zcms080g7NM" title="Charles T Milestone 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+    <iframe
+        src="https://www.youtube.com/embed/zcms080g7NM"
+        title="Charles T Milestone 1"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+    </iframe>
+</div>
 
 * **Project Overview:** I am building an Arduino-powered self-drivingcar that can detect obstacles, navigate around them, and switch between autonomous and remote-controlled driving modes.
 
