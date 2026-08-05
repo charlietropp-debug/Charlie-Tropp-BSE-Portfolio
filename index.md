@@ -53,7 +53,8 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 * **Next Steps:** I will improve the obstacle avoidance algorithm,test the car in different obstacle courses, and refine the software until it can reliably drive both autonomously and under manual control.
 
 # Schematics 
-
+![Headstone Image](Fritzing SChematic.png)
+![Headstone Image](logo.svg)
 
 # Code
 Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
