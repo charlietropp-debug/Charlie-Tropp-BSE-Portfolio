@@ -53,7 +53,7 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 * **Next Steps:** I will improve the obstacle avoidance algorithm,test the car in different obstacle courses, and refine the software until it can reliably drive both autonomously and under manual control.
 
 # Schematics 
-![Headstone Image]([Fritzing SChematic.png]
+![HeadstoneImage]([FritzingSChematic.png]
 ![Headstone Image](logo.svg)
 
 # Code
