@@ -12,8 +12,6 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 </div>  
 # Final Milestone
 
-**Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
-
 <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
     <iframe
         src="https://www.youtube.com/embed/imD-li7K2ZM"
