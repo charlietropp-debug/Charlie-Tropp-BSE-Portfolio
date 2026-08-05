@@ -46,16 +46,786 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 # Code
 
 ```cpp
-// Paste your Arduino code here.
+#include <IRremote.h>
+#include <LiquidCrystal_I2C.h>
+
+const int A_1B = 5;
+const int A_1A = 6;
+const int B_1B = 9;
+const int B_1A = 10;
+
+const int IR_RECEIVE_PIN = 12;
+
+const int echoPin  = 4;
+const int trigPin  = 3;
+const int rightIR  = 7;
+const int leftIR   = 8;
+
+
+const int leftLineTrackPin  = 2;  
+const int rightLineTrackPin = 11; 
+
+enum RemoteKey {
+  KEY_NONE, KEY_ERROR,
+  KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9,
+  KEY_PLUS, KEY_MINUS, KEY_EQ, KEY_USD, KEY_CYCLE,
+  KEY_PLAY_PAUSE, KEY_FORWARD, KEY_BACKWARD, KEY_POWER, KEY_MUTE, KEY_MODE
+};
+
+
+enum Mode { MODE_MANUAL, MODE_SELF_DRIVE, MODE_LINE_TRACK, MODE_HAND_FOLLOW };
+Mode currentMode = MODE_MANUAL;
+
+
+const bool LINE_SENSOR_BLACK_IS_HIGH = true;
+
+
+float LEFT_TRIM  = 1.15;
+float RIGHT_TRIM = 1.00;
+
+
+const int JOY_CENTER = 512;   
+const int JOY_DEADZONE = 40; 
+const int SLIDER_MAX = 100;   
+
+
+bool phoneActive = false;
+
+unsigned long lcdShownAt = 0;  
+bool lcdShowingTuning = false;  
+const unsigned long LCD_TUNING_SHOW_MS = 2000;
+
+
+char mbId[6];
+char mbVal[14];
+byte mbIdLen = 0;
+byte mbValLen = 0;
+byte mbState = 0;   
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);  
+
+
+RemoteKey activeMoveKey = KEY_NONE;
+unsigned long lastMoveSignalTime = 0;
+const unsigned long RELEASE_TIMEOUT_MS = 200;
+
+int driveSpeed = 150;
+const int TURN_SPEED    = 150;  
+const int REVERSE_SPEED = 130;  
+
+const int RAMP_STEP = 35;                  
+const unsigned long RAMP_INTERVAL_MS = 10; 
+const int MIN_START_PWM = 70;              
+
+int targetLeftSpeed = 0;
+int targetRightSpeed = 0;
+int currentLeftSpeed = 0;
+int currentRightSpeed = 0;
+unsigned long lastRampUpdate = 0;
+
+void drive(int leftSpeed, int rightSpeed) {
+  targetLeftSpeed = constrain(leftSpeed, -255, 255);
+  targetRightSpeed = constrain(rightSpeed, -255, 255);
+}
+
+int rampToward(int current, int target, int step) {
+  if (current == 0 && target != 0) {
+
+    if (target > 0) return min(MIN_START_PWM, target);
+    else             return max(-MIN_START_PWM, target);
+  }
+  if (current < target) return min(current + step, target);
+  if (current > target) return max(current - step, target);
+  return current;
+}
+
+int MOTOR_DEADBAND = 45;
+
+int applyDeadband(int pwm) {
+  return (pwm > 0 && pwm < MOTOR_DEADBAND) ? 0 : pwm;
+}
+
+
+void writeMotors(int left, int right) {
+  float leftMag  = fabs((float)left)  * LEFT_TRIM;
+  float rightMag = fabs((float)right) * RIGHT_TRIM;
+  float peak = max(leftMag, rightMag);
+  if (peak > 255.0f) {
+    float scale = 255.0f / peak;
+    leftMag  *= scale;
+    rightMag *= scale;
+  }
+
+  int leftPWM  = applyDeadband(constrain((int)round(leftMag), 0, 255));
+  int rightPWM = applyDeadband(constrain((int)round(rightMag), 0, 255));
+
+  if (left >= 0) { analogWrite(A_1B, 0); analogWrite(A_1A, leftPWM); }
+  else           { analogWrite(A_1A, 0); analogWrite(A_1B, leftPWM); }
+
+  if (right >= 0) { analogWrite(B_1A, 0); analogWrite(B_1B, rightPWM); }
+  else            { analogWrite(B_1B, 0); analogWrite(B_1A, rightPWM); }
+}
+
+void updateMotorRamp() {
+  unsigned long now = millis();
+  if (now - lastRampUpdate < RAMP_INTERVAL_MS) return;
+  lastRampUpdate = now;
+
+  currentLeftSpeed = rampToward(currentLeftSpeed, targetLeftSpeed, RAMP_STEP);
+  currentRightSpeed = rampToward(currentRightSpeed, targetRightSpeed, RAMP_STEP);
+  writeMotors(currentLeftSpeed, currentRightSpeed);
+}
+
+void driveNow(int leftSpeed, int rightSpeed) {
+  drive(leftSpeed, rightSpeed);
+  currentLeftSpeed = targetLeftSpeed;
+  currentRightSpeed = targetRightSpeed;
+  writeMotors(currentLeftSpeed, currentRightSpeed);
+}
+
+
+void hardStop() {
+  targetLeftSpeed = 0;
+  targetRightSpeed = 0;
+  currentLeftSpeed = 0;
+  currentRightSpeed = 0;
+  writeMotors(0, 0);
+}
+
+
+void moveForward(int speed)  { drive(speed, speed); }
+void moveBackward(int speed) { drive(-speed, -speed); }
+void pivotRight(int speed)   { drive(-speed, speed); } 
+void pivotLeft(int speed)    { drive(speed, -speed); }  
+void singleLeft(int speed)      { drive(speed, 0); }    
+void singleRight(int speed)     { drive(0, speed); }   
+void singleBackLeft(int speed)  { drive(-speed, 0); }   
+void singleBackRight(int speed) { drive(0, -speed); }  
+void stopMove() { drive(0, 0); }
+
+void steerToward(int dir, int outerSpeed, int innerSpeed) {
+
+  if (dir > 0) drive(innerSpeed, outerSpeed);  
+  else         drive(outerSpeed, innerSpeed);   
+}
+
+
+const unsigned long ULTRASONIC_TIMEOUT_US = 20000; 
+const int SAFE_DISTANCE_CM = 30;          
+int sdSpeed = 120;                      
+const unsigned long BACKUP_MS = 400;     
+unsigned long TURN_MS = 450;              
+unsigned long ESCAPE_TURN_MS = 900;       
+const int SD_MAX_CONSECUTIVE = 3;         
+const unsigned long SD_PROGRESS_MS = 1500;
+
+enum SelfDriveState { SD_FORWARD, SD_BACKUP, SD_TURN };
+SelfDriveState sdState = SD_FORWARD;
+unsigned long sdStateStart = 0;
+int sdTurnDir = 1;
+int sdConsecutiveTurns = 0; 
+unsigned long sdTurnLen = TURN_MS; 
+
+const int LINE_FILTER_SAMPLES = 3;
+int leftLineHistory[LINE_FILTER_SAMPLES] = { 1, 1, 1 };
+int leftLineHistoryIndex = 0;
+int rightLineHistory[LINE_FILTER_SAMPLES] = { 1, 1, 1 };
+int rightLineHistoryIndex = 0;
+
+
+int lineSpeed   = 120;  
+int turnSpeed   = 150;  
+int searchSpeed = 150;  
+
+
+const bool INVERT_LINE_STEERING = false;
+
+
+int cornerTurnDir = -1;   
+const unsigned long SWEEP_FIRST_MS = 800;
+const unsigned long SWEEP_GROW_MS  = 500;
+
+const unsigned long RECOVER_MAX_MS = 3000;
+
+const unsigned long RECOVER_NUDGE_MS = 2500;
+
+const unsigned long ONE_SENSOR_MIN_MS = 80;
+
+enum LineState { LINE_CENTERED, LINE_LEFT, LINE_RIGHT, LINE_LOST };
+LineState lineState = LINE_CENTERED;
+int lastSeenDir = -1;          
+bool recovering = false;      
+int sweepDir = 1;             
+unsigned long sweepStart = 0;
+unsigned long sweepLen = SWEEP_FIRST_MS;
+unsigned long recoverStart = 0;
+unsigned long oneSensorSince = 0; 
+
+
+float handDistanceFiltered = -1;         
+unsigned long lastValidHandReading = 0; 
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(A_1B, OUTPUT);
+  pinMode(A_1A, OUTPUT);
+  pinMode(B_1B, OUTPUT);
+  pinMode(B_1A, OUTPUT);
+
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(leftIR, INPUT);
+  pinMode(rightIR, INPUT);
+
+  pinMode(leftLineTrackPin, INPUT);
+  pinMode(rightLineTrackPin, INPUT);
+
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+  Serial.println(F("READY - starting in MANUAL mode"));
+
+  lcd.init();
+  lcd.backlight();
+  updateLCD();  
+}
+
+void loop() {
+  handleIRRemote();  
+  handlePhone();    
+  checkLcdRestore(); 
+
+  switch (currentMode) {
+    case MODE_MANUAL:
+      checkManualRelease();
+      break;
+    case MODE_SELF_DRIVE:
+      runSelfDrive();
+      break;
+    case MODE_LINE_TRACK:
+      runLineTrack();
+      break;
+    case MODE_HAND_FOLLOW:
+      runHandFollow();
+      break;
+  }
+
+
+  updateMotorRamp();
+}
+
+
+void updateLCD() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+
+  lcd.print(F("Mode:"));
+  lcd.setCursor(0, 1);
+  if (currentMode == MODE_MANUAL) {
+    if (phoneActive) lcd.print(F("Bluetooth Mode"));
+    else             lcd.print(F("Remote Control"));
+  }
+  else if (currentMode == MODE_SELF_DRIVE) lcd.print(F("Self-Driving"));
+  else if (currentMode == MODE_LINE_TRACK) lcd.print(F("Line Following"));
+  else lcd.print(F("Hand Following"));
+}
+
+
+void handleIRRemote() {
+  if (!IrReceiver.decode()) return;
+
+  bool isRepeat = (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) != 0;
+
+  RemoteKey key;
+  if (isRepeat) {
+    key = activeMoveKey;
+  } else {
+    key = decodeKeyValue(IrReceiver.decodedIRData.command);
+    if (key == KEY_ERROR) {
+      Serial.print(F("Unrecognized code: 0x"));
+      Serial.println(IrReceiver.decodedIRData.command, HEX);
+    }
+  }
+
+
+  if (!isRepeat && key == KEY_CYCLE) {
+    setMode(currentMode == MODE_LINE_TRACK ? MODE_MANUAL : MODE_LINE_TRACK);
+    IrReceiver.resume();
+    return;
+  }
+  if (!isRepeat && key == KEY_USD) {
+    setMode(currentMode == MODE_SELF_DRIVE ? MODE_MANUAL : MODE_SELF_DRIVE);
+    IrReceiver.resume();
+    return;
+  }
+  if (!isRepeat && key == KEY_EQ) {
+    setMode(currentMode == MODE_HAND_FOLLOW ? MODE_MANUAL : MODE_HAND_FOLLOW);
+    IrReceiver.resume();
+    return;
+  }
+
+  if (!isRepeat && key == KEY_0) {
+    setMode(MODE_MANUAL);
+    IrReceiver.resume();
+    return;
+  }
+
+
+  if (!isRepeat && (key == KEY_PLUS || key == KEY_MINUS)) {
+    int step = (key == KEY_PLUS) ? +1 : -1;
+    if (currentMode == MODE_LINE_TRACK) {
+
+      lineSpeed = constrain(lineSpeed + step * 10, MOTOR_DEADBAND + 40, 255);
+      Serial.print(F("lineSpeed = ")); Serial.println(lineSpeed);
+    } else {
+      driveSpeed = constrain(driveSpeed + step * 50, 0, 255);
+      Serial.print(F("driveSpeed = ")); Serial.println(driveSpeed);
+    }
+  }
+
+  if (currentMode == MODE_MANUAL && key != KEY_ERROR && key != KEY_NONE) {
+    if (!isRepeat) { printKeyName(key); Serial.println(); }
+
+    if (key == KEY_2) {
+      moveForward(driveSpeed); activeMoveKey = KEY_2; lastMoveSignalTime = millis();
+    } else if (key == KEY_1) {
+      singleLeft(driveSpeed); activeMoveKey = KEY_1; lastMoveSignalTime = millis();
+    } else if (key == KEY_3) {
+      singleRight(driveSpeed); activeMoveKey = KEY_3; lastMoveSignalTime = millis();
+    } else if (key == KEY_4) {
+      pivotLeft(driveSpeed); activeMoveKey = KEY_4; lastMoveSignalTime = millis();
+    } else if (key == KEY_6) {
+      pivotRight(driveSpeed); activeMoveKey = KEY_6; lastMoveSignalTime = millis();
+    } else if (key == KEY_7) {
+      singleBackLeft(driveSpeed); activeMoveKey = KEY_7; lastMoveSignalTime = millis();
+    } else if (key == KEY_9) {
+      singleBackRight(driveSpeed); activeMoveKey = KEY_9; lastMoveSignalTime = millis();
+    } else if (key == KEY_8) {
+      moveBackward(driveSpeed); activeMoveKey = KEY_8; lastMoveSignalTime = millis();
+    }
+  }
+
+  IrReceiver.resume();
+}
+
+void checkManualRelease() {
+  if (activeMoveKey != KEY_NONE && millis() - lastMoveSignalTime > RELEASE_TIMEOUT_MS) {
+    stopMove();
+    activeMoveKey = KEY_NONE;
+  }
+}
+
+void setMode(Mode newMode) {
+  hardStop();
+  activeMoveKey = KEY_NONE;
+  phoneActive = false; 
+  lcdShowingTuning = false;
+
+  lineState = LINE_CENTERED;
+  recovering = false;
+  sweepDir = cornerTurnDir;
+  sweepStart = 0;
+  sweepLen = SWEEP_FIRST_MS;
+  recoverStart = 0;
+  oneSensorSince = 0;
+
+  sdState = SD_FORWARD;
+  sdConsecutiveTurns = 0;
+  sdStateStart = millis();
+
+  handDistanceFiltered = -1;
+  lastValidHandReading = 0;
+
+
+
+  currentMode = newMode;
+
+  Serial.print(F("Switched to mode: "));
+  if (currentMode == MODE_MANUAL) Serial.println(F("MANUAL"));
+  else if (currentMode == MODE_SELF_DRIVE) Serial.println(F("SELF_DRIVE"));
+  else if (currentMode == MODE_LINE_TRACK) Serial.println(F("LINE_TRACK"));
+  else Serial.println(F("HAND_FOLLOW"));
+
+  updateLCD();
+}
+
+
+float readUltrasonicCM() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  long duration = pulseIn(echoPin, HIGH, ULTRASONIC_TIMEOUT_US);
+  if (duration == 0) return -1; 
+  return duration / 58.00;
+}
+
+int decideTurnDirection(bool leftBlocked, bool rightBlocked) {
+  if (leftBlocked && !rightBlocked) return 1;  
+  if (rightBlocked && !leftBlocked) return -1; 
+  return sdTurnDir;
+}
+
+void pivotTurn(int dir) {
+  if (dir > 0) pivotRight(TURN_SPEED);
+  else pivotLeft(TURN_SPEED);
+}
+
+
+void runSelfDrive() {
+  unsigned long now = millis();
+  bool leftBlocked  = !digitalRead(leftIR);   
+  bool rightBlocked = !digitalRead(rightIR);
+  float distance = readUltrasonicCM();
+  bool frontBlocked = (distance >= 0 && distance < SAFE_DISTANCE_CM);
+  bool blocked = frontBlocked || leftBlocked || rightBlocked;
+
+  switch (sdState) {
+
+    case SD_FORWARD:
+      if (!blocked) {
+        moveForward(sdSpeed);
+        if (now - sdStateStart > SD_PROGRESS_MS) sdConsecutiveTurns = 0;
+        return;
+      }
+      sdTurnDir = decideTurnDirection(leftBlocked, rightBlocked);
+      sdConsecutiveTurns++;
+      if (sdConsecutiveTurns >= SD_MAX_CONSECUTIVE) {
+        sdTurnLen = ESCAPE_TURN_MS;  
+        sdConsecutiveTurns = 0;
+      } else {
+        sdTurnLen = TURN_MS;
+      }
+      sdState = SD_BACKUP;
+      sdStateStart = now;
+      moveBackward(REVERSE_SPEED);
+      break;
+
+    case SD_BACKUP:
+      moveBackward(REVERSE_SPEED);
+      if (now - sdStateStart >= BACKUP_MS) {
+        sdState = SD_TURN;
+        sdStateStart = now;
+        pivotTurn(sdTurnDir);
+      }
+      break;
+
+    case SD_TURN:
+      pivotTurn(sdTurnDir);
+      if (now - sdStateStart >= sdTurnLen) {
+        sdState = SD_FORWARD;
+        sdStateStart = now;
+      }
+      break;
+  }
+}
+
+bool readLineSensorRaw(int pin) {
+  bool high = digitalRead(pin);
+  return LINE_SENSOR_BLACK_IS_HIGH ? high : !high;
+}
+
+bool readFilteredDigital(int pin, int* history, int &historyIndex) {
+  history[historyIndex] = readLineSensorRaw(pin) ? 1 : 0; 
+  historyIndex = (historyIndex + 1) % LINE_FILTER_SAMPLES;
+  int sum = 0;
+  for (int i = 0; i < LINE_FILTER_SAMPLES; i++) sum += history[i];
+  return sum > LINE_FILTER_SAMPLES / 2; // majority vote
+}
+
+bool readLeftLine()  { return readFilteredDigital(leftLineTrackPin, leftLineHistory, leftLineHistoryIndex); }
+bool readRightLine() { return readFilteredDigital(rightLineTrackPin, rightLineHistory, rightLineHistoryIndex); }
+
+void lineArc(int dir) {
+  if (INVERT_LINE_STEERING) dir = -dir;
+  if (dir > 0) driveNow(0, turnSpeed);  
+  else         driveNow(turnSpeed, 0);   
+}
+
+void linePivot(int dir) {
+  if (INVERT_LINE_STEERING) dir = -dir;
+  if (dir > 0) driveNow(-searchSpeed, searchSpeed);
+  else         driveNow(searchSpeed, -searchSpeed);
+}
+
+
+
+void lineSweep(unsigned long now) {
+  unsigned long lostFor = now - recoverStart;
+  if (RECOVER_NUDGE_MS > 0 && lostFor > RECOVER_NUDGE_MS && (lostFor % 1200) < 300) {
+    driveNow(-searchSpeed, -searchSpeed);
+    return;
+  }
+
+  if (now - sweepStart > sweepLen) {
+    sweepDir = -sweepDir;
+    sweepStart = now;
+    sweepLen += SWEEP_GROW_MS;
+  }
+  linePivot(sweepDir);
+}
+
+void runLineTrack() {
+  bool leftOn  = readLeftLine();
+  bool rightOn = readRightLine();
+  unsigned long now = millis();
+  if (recovering) {
+    bool aligned = leftOn && rightOn;
+    bool desperate = (now - recoverStart > RECOVER_MAX_MS) && (leftOn || rightOn);
+    if (aligned || desperate) {
+      recovering = false;
+    } else {
+      lineState = LINE_LOST;
+      lineSweep(now);
+      return;
+    }
+  }
+  if (leftOn && rightOn) {
+    lineState = LINE_CENTERED;
+    driveNow(lineSpeed, lineSpeed);
+  } else if (leftOn) {
+    if (lineState != LINE_LEFT) oneSensorSince = now; 
+    lineState = LINE_LEFT;
+    lastSeenDir = -1;                            
+    lineArc(lastSeenDir);
+  } else if (rightOn) {
+    if (lineState != LINE_RIGHT) oneSensorSince = now;
+    lineState = LINE_RIGHT;
+    lastSeenDir = +1;                             
+    lineArc(lastSeenDir);
+  } else {
+    bool sustainedDrift = (lineState == LINE_LEFT || lineState == LINE_RIGHT)
+                          && (now - oneSensorSince >= ONE_SENSOR_MIN_MS);
+    sweepDir  = sustainedDrift ? lastSeenDir : cornerTurnDir;
+    sweepStart = now;
+    sweepLen   = SWEEP_FIRST_MS;
+    recoverStart = now;
+    recovering = true;
+    lineState  = LINE_LOST;
+    lineSweep(now);
+  }
+}
+
+const float HAND_BACKUP_CM = 5;    
+const float HAND_STOP_CM   = 10;   
+const float HAND_FOLLOW_CM = 30;   
+const int HAND_BACKUP_SPEED = 90;      
+const int HAND_MIN_CREEP_SPEED = 90;   
+const int HAND_STEER_STEP = 40;        
+const unsigned long HAND_SIGNAL_TIMEOUT_MS = 250; 
+
+float readFilteredHandDistance() {
+  float raw = readUltrasonicCM();
+  if (raw >= 0) {
+    handDistanceFiltered = (handDistanceFiltered < 0) ? raw : (handDistanceFiltered * 0.7 + raw * 0.3);
+    lastValidHandReading = millis();
+  }
+  if (millis() - lastValidHandReading > HAND_SIGNAL_TIMEOUT_MS) return -1;
+  return handDistanceFiltered;
+}
+
+void runHandFollow() {
+  float distance = readFilteredHandDistance();
+  bool leftBlocked = !digitalRead(leftIR);
+  bool rightBlocked = !digitalRead(rightIR);
+
+  if (distance < 0 || distance >= HAND_FOLLOW_CM) {
+    stopMove(); 
+    return;
+  }
+
+  if (distance < HAND_BACKUP_CM) {
+    moveBackward(HAND_BACKUP_SPEED); 
+    return;
+  }
+
+  if (distance < HAND_STOP_CM) {
+    stopMove(); 
+    return;
+  }
+
+
+  float t = (distance - HAND_STOP_CM) / (HAND_FOLLOW_CM - HAND_STOP_CM);
+  int creepFloor = min(HAND_MIN_CREEP_SPEED, driveSpeed);
+  int speed = constrain((int)(driveSpeed * t), creepFloor, driveSpeed);
+
+  if (leftBlocked && !rightBlocked) {
+    steerToward(-1, speed, max(speed - HAND_STEER_STEP, 0));
+  } else if (rightBlocked && !leftBlocked) {
+    steerToward(1, speed, max(speed - HAND_STEER_STEP, 0));
+  } else {
+    moveForward(speed);
+  }
+}
+
+
+void showTuningValue(const __FlashStringHelper* label, float value, byte decimals) {
+  lcd.setCursor(0, 0);
+  lcd.print(label);
+  lcd.print(value, decimals);
+  lcd.print(F("        "));
+  lcdShownAt = millis();
+  lcdShowingTuning = true;
+}
+
+
+void checkLcdRestore() {
+  if (lcdShowingTuning && millis() - lcdShownAt >= LCD_TUNING_SHOW_MS) {
+    lcdShowingTuning = false;
+    updateLCD();
+  }
+}
+
+
+void notePhoneActivity() {
+  if (!phoneActive) {
+    phoneActive = true;
+    updateLCD();
+  }
+}
+
+
+void phoneJoystick(int steering, int throttle) {
+  if (currentMode != MODE_MANUAL) return; 
+
+  if (abs(throttle) < JOY_DEADZONE) throttle = 0;
+  if (abs(steering) < JOY_DEADZONE) steering = 0;
+
+  if (throttle == 0 && steering == 0) {
+    if (activeMoveKey == KEY_NONE) stopMove(); 
+    return;
+  }
+
+
+  int base = ((long)throttle * driveSpeed) / JOY_CENTER;
+  int diff = ((long)steering * driveSpeed) / JOY_CENTER;
+  drive(base - diff, base + diff);
+}
+
+
+void phoneMessage(char* id, char* val) {
+  notePhoneActivity();
+
+
+  if (id[0] == 'd') {
+    char* comma = strchr(val, ',');
+    if (comma) {
+      *comma = 0;
+      phoneJoystick(atoi(val) - JOY_CENTER, atoi(comma + 1) - JOY_CENTER);
+    }
+    return;
+  }
+
+
+  if (id[0] == 'b') {
+    if (val[0] == '1') {
+      int n = atoi(id + 1);
+      if (n >= 0 && n <= 3) setMode((Mode)n);
+    }
+    return;
+  }
+
+
+  if (id[0] == 's' && id[1] == 'l') {
+    int n = atoi(id + 2);
+    int v = constrain(atoi(val), 0, SLIDER_MAX);
+    switch (n) {
+      case 0: 
+        LEFT_TRIM = 1.00 + (0.40 * v) / (float)SLIDER_MAX;
+        showTuningValue(F("TRIM "), LEFT_TRIM, 3);
+        break;
+      case 1:
+        lineSpeed = map(v, 0, SLIDER_MAX, 80, 200);
+        showTuningValue(F("LINE SPD "), lineSpeed, 0);
+        break;
+      case 2:
+        sdSpeed = map(v, 0, SLIDER_MAX, 80, 200);
+        showTuningValue(F("SELF SPD "), sdSpeed, 0);
+        break;
+      case 3:
+        ESCAPE_TURN_MS = map(v, 0, SLIDER_MAX, 400, 2000);
+        showTuningValue(F("TURN "), ESCAPE_TURN_MS, 0);
+        break;
+    }
+  }
+}
+
+void handlePhone() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == 1) {                
+      mbState = 1; mbIdLen = 0; mbValLen = 0;
+    } else if (c == 2 && mbState == 1) {   
+      mbState = 2;
+    } else if (c == 3 && mbState == 2) {  
+      mbId[mbIdLen] = 0;
+      mbVal[mbValLen] = 0;
+      phoneMessage(mbId, mbVal);
+      mbState = 0;
+    } else if (mbState == 1) {
+      if (mbIdLen < sizeof(mbId) - 1) mbId[mbIdLen++] = c;
+    } else if (mbState == 2) {
+      if (mbValLen < sizeof(mbVal) - 1) mbVal[mbValLen++] = c;
+    }
+  }
+}
+
+RemoteKey decodeKeyValue(long result) {
+  switch (result) {
+    case 0x16: return KEY_0;
+    case 0xC:  return KEY_1;
+    case 0x18: return KEY_2;
+    case 0x5E: return KEY_3;
+    case 0x8:  return KEY_4;
+    case 0x1C: return KEY_5;
+    case 0x5A: return KEY_6;
+    case 0x42: return KEY_7;
+    case 0x52: return KEY_8;
+    case 0x4A: return KEY_9;
+    case 0x9:  return KEY_PLUS;
+    case 0x15: return KEY_MINUS;
+    case 0x7:  return KEY_EQ;
+    case 0xD:  return KEY_USD;
+    case 0x19: return KEY_CYCLE;
+    case 0x44: return KEY_PLAY_PAUSE;
+    case 0x43: return KEY_FORWARD;
+    case 0x40: return KEY_BACKWARD;
+    case 0x45: return KEY_POWER;
+    case 0x47: return KEY_MUTE;
+    case 0x46: return KEY_MODE;
+    default:   return KEY_ERROR;
+  }
+}
+
+void printKeyName(RemoteKey k) {
+  switch (k) {
+    case KEY_0: Serial.print(F("0")); break;
+    case KEY_1: Serial.print(F("1")); break;
+    case KEY_2: Serial.print(F("2")); break;
+    case KEY_3: Serial.print(F("3")); break;
+    case KEY_4: Serial.print(F("4")); break;
+    case KEY_5: Serial.print(F("5")); break;
+    case KEY_6: Serial.print(F("6")); break;
+    case KEY_7: Serial.print(F("7")); break;
+    case KEY_8: Serial.print(F("8")); break;
+    case KEY_9: Serial.print(F("9")); break;
+    case KEY_PLUS: Serial.print(F("+")); break;
+    case KEY_MINUS: Serial.print(F("-")); break;
+    case KEY_EQ: Serial.print(F("EQ")); break;
+    case KEY_USD: Serial.print(F("U/SD")); break;
+    case KEY_CYCLE: Serial.print(F("CYCLE")); break;
+    case KEY_PLAY_PAUSE: Serial.print(F("PLAY/PAUSE")); break;
+    case KEY_FORWARD: Serial.print(F("FORWARD")); break;
+    case KEY_BACKWARD: Serial.print(F("BACKWARD")); break;
+    case KEY_POWER: Serial.print(F("POWER")); break;
+    case KEY_MUTE: Serial.print(F("MUTE")); break;
+    case KEY_MODE: Serial.print(F("MODE")); break;
+    case KEY_NONE: Serial.print(F("NONE")); break;
+    default: Serial.print(F("ERROR")); break;
+  }
+}
 ```
 
-# Bill of Materials
 
-Keep your existing table, but convert every HTML link:
-<a href="URL">Link</a>
-
-to
-
-[Link](URL)
-
-Also ensure every URL starts with https://
