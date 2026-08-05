@@ -66,7 +66,6 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
     font-size: 14px;
     line-height: 1.5;
 "><code class="language-cpp">
-
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
 
