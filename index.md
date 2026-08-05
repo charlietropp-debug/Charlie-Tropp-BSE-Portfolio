@@ -1,19 +1,15 @@
 Self Driving Car
 My project is an Arduino-based self-driving car that uses ultrasonic and infrared sensors to detect obstacles and navigate autonomously. In addition to self-driving capabilities, the car will include a remote-control mode, allowing it to switch between manual and autonomous operation. This project combines programming, electronics, and robotics to demonstrate the fundamentals of autonomous vehicle technology.
 
-You should comment out all portions of your portfolio that you have not completed yet, as well as any instructions:
-```HTML 
-<!--- This is an HTML comment in Markdown -->
-<!--- Anything between these symbols will not render on the published site -->
-```
-
 | Engineer|School Name| Interests | Grade|
 |:--:|:--:|:--:|:--:|
 | Charles T| Paul D. Schreiber High School |AI and Software Engineering| Incoming Juior
-
-![Headstone Image](
-IMG_4075.jpeg)
-  
+<div style="text-align: center;">
+  <img
+    src="IMG_4075.jpeg"
+    alt="Headstone Image"
+    style="max-width: 60%; transform: rotate(-90deg);">
+</div>  
 # Final Milestone
 
 **Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
