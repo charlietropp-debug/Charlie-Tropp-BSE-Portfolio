@@ -11,12 +11,8 @@ You should comment out all portions of your portfolio that you have not complete
 |:--:|:--:|:--:|:--:|
 | Charles T| Paul D. Schreiber High School |AI and Software Engineering| Incoming Juior
 
-<div style="text-align: center;">
-  <img
-    src="IMG_4075.jpeg"
-    alt="Headstone Image"
-    style="max-width: 100%; transform: rotate(-90deg);">
-</div>
+![Headstone Image](
+IMG_4075.jpeg)
   
 # Final Milestone
 
