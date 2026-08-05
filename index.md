@@ -78,7 +78,7 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 
 # Schematics 
 ![Headstone_Image](FritzingSChematic.png)
-![Headstone Image](logo.svg)
+![Headstone Image](IMG_4064.jpeg)
 
 # Code
 
