@@ -869,16 +869,13 @@ void printKeyName(RemoteKey k) {
 | IR Receiver | Used for wireless remote control. | $9.99 | [Link](https://www.amazon.com/ALLECIN-Infrared-Emitter-Receiver-Receivers/dp/B0D72WY17V) |
 | I2C LCD | Used to show text and numbers in microcontroller projects using only four pins. | $12.99 for 3 | [Link](https://www.amazon.com/Hosyond-Display-Module-Arduino-Raspberry/dp/B0BWTFN9WF) |
 | Remote Control | Used to operate systems wirelessly using infrared signals. | $9.59 for 6 | [Link](https://www.amazon.com/DWEII-Infrared-Wireless-Control-Raspberry/dp/B09ZTZQFP7) |
-| DSD TECH HM-10 Bluetooth 4.0 | Used to add wireless serial communication to Arduino. | — | — |
+| DSD TECH HM-10 Bluetooth 4.0 | Used to add wireless serial communication to Arduino. | $10.99| https://www.amazon.com/DSD-TECH-Bluetooth-iBeacon-Arduino/dp/B06WGZB2N4 |
 
 Other Resources/Examples
-
-One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
-
 Example 1
 
 Example 2
 
 Example 3
 
-To watch the BSE tutorial on how to create a portfolio, click here.
+To watch the BSE tutoril on how to create a portfolio, click here.
