@@ -6,9 +6,12 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 |:--:|:--:|:--:|:--:|
 | Charles T | Paul D. Schreiber High School | AI and Software Engineering | Incoming Junior |
 
-<p align="center">
-  <img src="IMG_4075_landscape.jpeg" width="350">
-</p>
+<div style="text-align: center;">
+  <img
+    src="IMG_4075.jpeg"
+    alt="Headstone Image"
+    style="max-width: 60%; transform: rotate(-90deg);">
+</div>
 
 # Final Milestone
 
@@ -827,5 +830,36 @@ void printKeyName(RemoteKey k) {
   }
 }
 ```
+## Bill of Materials
 
+| Part | Note | Price | Link |
+| --- | --- | --- | --- |
+| SunFounder R3 Board | Used for prototyping electronics and robotics. | $15 | [Link](https://eu.robotshop.com/products/sunfounder-uno-r3-control-board) |
+| L9110 Motor Driver Module | Used to control the speed and direction of up to two DC motors. | $7.79 for 5 | [Link](https://www.amazon.com/HiLetgo-H-bridge-Stepper-Controller-Arduino/dp/B00M0F243E) |
+| TT Motor | Used to power the wheels of robot cars. | $9.99 for 6 | [Link](https://www.amazon.com/AEDIKO-Motor-Gearbox-200RPM-Ratio/dp/B09N6NXP4H) |
+| Ultrasonic Module | Uses sound waves to measure distance without physical contact. | $8.99 for 5 | [Link](https://www.amazon.com/ELEGOO-HC-SR04-Ultrasonic-Distance-MEGA2560/dp/B01COSN7O6) |
+| Obstacle Avoidance Module | Uses an infrared transmitter and receiver to detect nearby objects. | $9.96 for 10 | [Link](https://www.amazon.com/OSOYOO-Infrared-Obstacle-Avoidance-Arduino/dp/B01I57HIJ0) |
+| 9V Batteries | Used to power the car. | $8.99 for 10 | [Link](https://www.amazon.com/PKCELL-9V-Batteries-Battery-Detector/dp/B00ZTS55Y4) |
+| Small BreadBoard | Used to organize wires. | $5.99 for 6 | [Link](https://www.amazon.com/WWZMDiB-SYB-170-Breadboard-Plates-Multicolored/dp/B09YXQJMTG) |
+| Jumper Wires | Used to connect components, breadboards, or circuit boards without soldering. | $6.98 for 120 | [Link](https://www.amazon.com/Elegoo-EL-CP-004-Multicolored-Breadboard-arduino/dp/B01EV70C78) |
+| Arduino USB Cable | Used to upload code, provide power, and allow serial communication between Arduino and IDE. | $7.99 | [Link](https://www.amazon.com/Arduino-Data-Sync-Cable-Microcontroller/dp/B08RCJXY1Z) |
+| M2.5x6, 3x10, 3x6, 3x30 Screws + M2.5x11, 3x24, 3x12 Standoffs + Screwdriver | Used to secure components. | $9.99 | [Link](https://www.sunfounder.com/products/nylon-screws-kit) |
+| TT Wheels | Used for motion of the car and synced to TT motors. | $8.97 for 8 | [Link](https://www.amazon.com/ThtRht-Motor-Wheels-Replacement-Smart/dp/B0CG1C7T8J) |
+| Universal Wheel | Used for extra stability. | $8.99 for 4 | [Link](https://www.amazon.com/Dalyndar-Replacement-Universal-Rollers-Furniture/dp/B0DRX77FLV) |
+| Velcro | Used to fasten components. | $8.24 for 12 | [Link](https://www.amazon.com/Melsan-inch-Hook-Loop-Tape/dp/B07Y3SZCRY) |
+| IR Receiver | Used for wireless remote control. | $9.99 | [Link](https://www.amazon.com/ALLECIN-Infrared-Emitter-Receiver-Receivers/dp/B0D72WY17V) |
+| I2C LCD | Used to show text and numbers in microcontroller projects using only four pins. | $12.99 for 3 | [Link](https://www.amazon.com/Hosyond-Display-Module-Arduino-Raspberry/dp/B0BWTFN9WF) |
+| Remote Control | Used to operate systems wirelessly using infrared signals. | $9.59 for 6 | [Link](https://www.amazon.com/DWEII-Infrared-Wireless-Control-Raspberry/dp/B09ZTZQFP7) |
+| DSD TECH HM-10 Bluetooth 4.0 | Used to add wireless serial communication to Arduino. | — | — |
 
+Other Resources/Examples
+
+One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
+
+Example 1
+
+Example 2
+
+Example 3
+
+To watch the BSE tutorial on how to create a portfolio, click here.
