@@ -11,9 +11,12 @@ You should comment out all portions of your portfolio that you have not complete
 |:--:|:--:|:--:|:--:|
 | Charles T| Paul D. Schreiber High School |AI and Software Engineering| Incoming Juior
 
-**Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
-
-![Headstone Image](logo.svg)
+<div style="text-align: center;">
+  <img
+    src="IMG_4075.jpeg"
+    alt="Headstone Image"
+    style="max-width: 100%; transform: rotate(-90deg);">
+</div>
   
 # Final Milestone
 
@@ -79,10 +82,12 @@ For My second Milestone I have upgraded the Line Following mode from my first mi
 # Schematics 
 ![Headstone_Image](FritzingSChematic.png)
 ![Headstone Image](IMG_4064.jpeg)
+![Headstone Image](IMG_4065.jpeg)
+![Headstone Image](IMG_4066.jpeg)
 
 # Code
 
-<div style=" height: 350px; overflow-y: auto; overflow-x: hidden; background-color: #1e1e1e; color: white; padding: 15px; border-radius: 8px; "> <pre><code>
+```cpp
 
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
@@ -865,12 +870,7 @@ void printKeyName(RemoteKey k) {
   }
 }
 
-  </code></pre>
-</div>
-
-
-
-
+```
 # Bill of Materials
 | **Part** | **Note** | **Price** | **Link** |
 |:--:|:--:|:--:|:--:|
