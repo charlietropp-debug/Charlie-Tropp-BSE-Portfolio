@@ -5,6 +5,7 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 | Engineer | School | Interests | Grade |
 |:--:|:--:|:--:|:--:|
 | Charles T | Paul D. Schreiber High School | AI and Mechanical Engineering | Incoming Junior |
+
 <div style="text-align: center;">
   <img
     src="IMG_4075.jpeg"
