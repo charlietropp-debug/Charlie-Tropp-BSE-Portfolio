@@ -16,19 +16,43 @@ My project is an Arduino-based self-driving car that uses ultrasonic and infrare
 
 [![Final Milestone](https://img.youtube.com/vi/imD-li7K2ZM/maxresdefault.jpg)](https://youtu.be/imD-li7K2ZM)
 
-(Keep your existing milestone text here.)
+Project Overview: My final project is an Arduino-powered robot car that can be controlled using either a physical remote or Bluetooth from a phone. The robot features Hand-Following, Line-Following, and Self-Driving modes, along with an I2C LCD screen that displays the current operating mode.
+
+Milestone Overview: For my final milestone, I improved the Self-Driving and Hand-Following modes by refining the code to make them more reliable and responsive. I also added a Bluetooth module, allowing the robot to be controlled wirelessly from my phone in addition to the physical remote.
+
+Challenges & Triumphs: My biggest challenge was learning everything from the ground up, including wiring circuits, programming with Arduino, debugging code, and using GitHub. Through a lot of testing and persistence, I was able to overcome these challenges and successfully complete all of the robot's features. My biggest triumph was seeing every mode work together and feeling much more confident in my programming and engineering abilities.
+
+Key Topics Learned: Throughout this project, I learned about Arduino programming, electronics, sensors, motor control, Bluetooth communication, debugging, GitHub, and how to break large programming problems into smaller, manageable pieces.
+
+Future Goals: After BSE, I hope to continue learning about robotics, artificial intelligence, and software engineering. I would also like to build more advanced autonomous robots using computer vision and machine learning.
 
 # Second Milestone
 
 [![Second Milestone](https://img.youtube.com/vi/LZQw0s5oOHk/maxresdefault.jpg)](https://youtu.be/LZQw0s5oOHk)
 
-(Keep your existing second milestone text here.)
+Milestone Overview: For my second milestone, I improved the robot by upgrading the line-following system, adding an I2C LCD display to show the current driving mode, and increasing the range of the remote control mode.
+
+Components & Integration: I added a second line-following sensor to improve tracking accuracy and integrated an I2C LCD screen that displays the robot's current mode, such as Manual or Self-Driving. I also updated the remote control system to improve its performance.
+
+Progress So Far: The robot now follows lines more accurately using two sensors, displays its current mode on the LCD screen, and has a more reliable remote control mode with increased range.
+
+Challenges & Triumphs: One of my biggest challenges was getting the two line-following sensors and manual mode to work consistently. After rewriting parts of the code and spending more time debugging, I was able to make both systems much more reliable.
+
+Next Steps: For my third milestone, I will improve the self-driving mode by making obstacle avoidance smarter and add a Bluetooth module so I can control the robot from my phone.
 
 # First Milestone
 
 [![First Milestone](https://img.youtube.com/vi/zcms080g7NM/maxresdefault.jpg)](https://youtu.be/zcms080g7NM)
 
-(Keep your existing first milestone text here.)
+Project Overview: I am building an Arduino-powered self driving car that can detect obstacles, navigate around them, and switch between autonomous and remote controlled driving modes.
+
+Components & Integration: The project uses an Arduino R3, ultrasonic sensor, infrared obstacle sensors, an L9110 motor driver, TT motors, an IR transmitter/receiver, and a rechargeable battery. The Arduino processes sensor data and controls the motors to safely navigate the environment.
+
+Progress So Far: I have assembled the car, connected the motors and sensors, tested the hardware, and begun programming the obstacle detection, motor control, and manual driving modes.
+
+Challenges & Triumphs: My biggest challenge has been creating smoother navigation instead of simply backing up and turning. Through testing and debugging, I improved the motor control and obstacle detection code, giving the robot a more reliable foundation for future upgrades.
+
+Next Steps: I will improve the line-following mode by adding a second line-tracking sensor, add an I2C LCD display to show the current driving mode, and continue improving both the autonomous and manual driving systems.
 
 # Schematics
 
@@ -872,10 +896,5 @@ void printKeyName(RemoteKey k) {
 | DSD TECH HM-10 Bluetooth 4.0 | Used to add wireless serial communication to Arduino. | $10.99| https://www.amazon.com/DSD-TECH-Bluetooth-iBeacon-Arduino/dp/B06WGZB2N4 |
 
 Other Resources/Examples
-Example 1
+  | [Sun Founder Kit](url) |
 
-Example 2
-
-Example 3
-
-To watch the BSE tutoril on how to create a portfolio, click here.
